@@ -10,3 +10,20 @@ jobs:
           run: |
             apk add make
             make force
+
+      - name: Commit and Push SVGs
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+          git worktree add gh-pages gh-pages
+
+          mv out/*.svg gh-pages/
+          cd gh-pages
+          git add .
+
+          git diff --staged --quiet || (git commit -m "Update SVGs" && git push origin gh-pages)
+
+      - name: Clean up Git worktree
+        if: always()
+        run: git worktree remove gh-pages
