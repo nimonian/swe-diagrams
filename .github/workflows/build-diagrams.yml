@@ -6,24 +6,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: xu-cheng/texlive-action@v2
         with:
-          docker_image: xucheng/texlive-full:latest
+          docker_image: xucheng/texlive-small:latest
           run: |
             apk add make
             make force
-
-      - name: Commit and Push SVGs
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-
-          git worktree add gh-pages gh-pages
-
-          mv out/*.svg gh-pages/
-          cd gh-pages
-          git add .
-
-          git diff --staged --quiet || (git commit -m "Update SVGs" && git push origin gh-pages)
-
-      - name: Clean up Git worktree
-        if: always()
-        run: git worktree remove gh-pages
