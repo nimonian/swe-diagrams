@@ -10,8 +10,22 @@ jobs:
           run: |
             apk add make
             make force
+
+      - name: List output files
+        run: ls -l out/
+
       - name: Upload SVG files as Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: svg-files
           path: out/*.svg
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git checkout -b gh-pages
+          find out -name "*.svg" -exec mv {} ./ \;
+          git add .
+          git commit -m "Deploy SVGs"
+          git push --force origin gh-pages
