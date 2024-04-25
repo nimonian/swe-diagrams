@@ -6,7 +6,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: xu-cheng/texlive-action@v2
         with:
-          docker_image: xucheng/texlive-small:latest
+          docker_image: xucheng/texlive-full:latest
           run: |
             apk add make
             make force
+      - name: Upload SVG files as Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: svg-files
+          path: out/*.svg
