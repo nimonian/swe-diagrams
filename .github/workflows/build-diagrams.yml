@@ -1,10 +1,19 @@
+name: Build and Deploy LaTeX Documents
+
 on: [push]
+
 jobs:
   build_latex:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: xu-cheng/texlive-action@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up LaTeX environment
+        uses: xu-cheng/texlive-action@v2
         with:
           docker_image: xucheng/texlive-full:latest
           run: |
@@ -20,12 +29,24 @@ jobs:
           name: svg-files
           path: out/*.svg
 
-      - name: Deploy to GitHub Pages
+      - name: Set up Git
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git checkout -b gh-pages
-          find out -name "*.svg" -exec mv {} ./ \;
-          git add .
-          git commit -m "Deploy SVGs"
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+
+      - name: Check out gh-pages branch
+        run: |
+          git fetch
+          git checkout gh-pages || git checkout --orphan gh-pages
+
+      - name: Copy SVG files to root
+        run: |
+          mkdir -p svg
+          cp out/*.svg svg/
+
+      - name: Commit and push changes
+        run: |
+          git add svg/
+          git status
+          git commit -m "Deploy updated SVGs" --allow-empty
           git push --force origin gh-pages
