@@ -1,0 +1,26 @@
+name: Build TiKz Diagrams
+
+on:
+  push:
+    paths:
+      - 'src/**.tex'
+  pull_request:
+    paths:
+      - 'src/**.tex'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install LaTeX
+        run:
+          sudo apt-get install texlive texlive-latex-extra texlive-pictures
+          texlive-luatex dvisvgm
+      - name: Compile diagrams to SVG
+        run: |
+          mkdir -p out
+          for file in src/*.tex; do
+            pdflatex -output-directory out -halt-on-error -interaction batchmode $file
+            dvisvgm --no-fonts out/$(basename $file .tex).dvi --output=out/$(basename $file .tex).svg
+          done
